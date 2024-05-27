@@ -69,3 +69,5 @@ flutter:
   assets:
     - assets/images/home.png
     - assets/images/CarbonSaverToken.png
+    - assets/images/logo_car.png
+    - assets/images/logo_eco_park_background.png

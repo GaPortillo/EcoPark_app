@@ -4,12 +4,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../../data/services/auth_signalr_service.dart';
-import 'package:signalr_core/signalr_core.dart';
 import '../models/user_model.dart';
-import '../services/signalr_service.dart';
 
-const String _baseUrl = 'https://apim-dev-ecopark-api.azure-api.net';
+const String _baseUrl = 'https://wa-dev-ecopark-api.azurewebsites.net';
 
 abstract class AuthRepository {
   Future<UserModel> login(String email, String password);
@@ -20,22 +17,6 @@ abstract class AuthRepository {
 class AuthRepositoryImpl implements AuthRepository {
   final _storage = const FlutterSecureStorage();
 
-  late SignalRService _signalRService;
-  late AuthSignalRService _authSignalRService;
-
-  AuthRepositoryImpl() {
-    final hubConnection = HubConnectionBuilder()
-        .withUrl('https://apim-dev-ecopark-api.azure-api.net/parkingSpaceHub', HttpConnectionOptions(
-      transport: HttpTransportType.webSockets,
-      skipNegotiation: true, // Skip the negotiation step
-    ))
-        .withAutomaticReconnect()
-        .build();
-
-    _signalRService = SignalRService(hubConnection);
-    _authSignalRService = AuthSignalRService(_signalRService.channel!);
-    _signalRService.startConnection();
-  }
 
   @override
   Future<UserModel> login(String email, String password) async {

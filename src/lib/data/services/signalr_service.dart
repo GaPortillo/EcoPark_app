@@ -1,40 +1,60 @@
-// lib/data/services/signalr_service.dart
-
-import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:signalr_core/signalr_core.dart';
 
 class SignalRService {
-  final HubConnection _hubConnection;
-  final _connectionStateController = ValueNotifier<HubConnectionState>(HubConnectionState.disconnected);
+  late HubConnection _hubConnection;
+  final StreamController<List<dynamic>> _receivedDataController = StreamController<List<dynamic>>.broadcast();
 
-  SignalRService(this._hubConnection);
+  Stream<List<dynamic>> get receivedData => _receivedDataController.stream;
 
-  ValueNotifier<HubConnectionState> get connectionState => _connectionStateController;
-
-  Future<void> startConnection() async {
-    _hubConnection.onclose((error) { // Correção aqui
-      _connectionStateController.value = HubConnectionState.disconnected;
-      if (error != null) {
-        print('Conexão encerrada: $error');
-      }
-    });
+  Future<void> startConnection(String locationId) async {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl('https://wa-dev-ecopark-api.azurewebsites.net/parkingSpaceHub?locationId=$locationId',
+        HttpConnectionOptions(
+            logging: (level, message) => print(message),
+            transport: HttpTransportType.webSockets))
+        .build();
 
     await _hubConnection.start();
-    _connectionStateController.value = HubConnectionState.connected;
-    print('Conectado ao Hub SignalR.');
+    print('Conectado ao hub SignalR de status das vagas de estacionamento.');
+
+    _hubConnection.on('ReceiveParkingSpaces', (data) {
+      _receivedDataController.add(data ?? []);
+    });
+
+    await getParkingSpaces(locationId);
+
+    Timer.periodic(Duration(seconds: 5), (timer) async {
+      if (_hubConnection.state == HubConnectionState.connected) {
+        await getParkingSpaces(locationId);
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
-  Future<void> stopConnection() async {
-    await _hubConnection.stop();
-    _connectionStateController.value = HubConnectionState.disconnected;
-    print('Desconectado do Hub SignalR.');
-  }
-
-  Future<void> waitForConnection() async {
-    while (_connectionStateController.value != HubConnectionState.connected) {
-      await Future.delayed(const Duration(milliseconds: 100));
+  Future<List<dynamic>> getParkingSpaces(String locationId) async {
+    if (_hubConnection.state == HubConnectionState.connected) {
+      try {
+        final result = await _hubConnection.invoke('GetParkingSpaces', args: [locationId]);
+        if (result is List<dynamic>) {
+          return result;
+        } else {
+          print('Aviso: O resultado da invocação não é uma lista: $result');
+          return [];
+        }
+      } catch (err) {
+        print('Erro ao chamar o método GetParkingSpaces: $err');
+        return [];
+      }
+    } else {
+      print('Conexão não está ativa.');
+      return [];
     }
   }
 
-  HubConnection get channel => _hubConnection;
+  void dispose() {
+    _hubConnection.stop();
+    _receivedDataController.close();
+  }
 }

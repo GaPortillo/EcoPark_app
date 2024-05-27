@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ecopark/data/repositories/location_repository.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +8,9 @@ import 'package:http/http.dart' as http;
 class LocationService {
   final Location _location = Location();
   final String _apiKey = 'AIzaSyCq3GE9A36O9KHksrtgCg0YRt14BnRS5YY';
+  final LocationRepository _locationRepository;
+
+  LocationService(this._locationRepository);
 
   Future<LatLng> getCurrentLocation() async {
     bool serviceEnabled = await _location.serviceEnabled();
@@ -30,6 +34,9 @@ class LocationService {
   }
 
   Future<LatLng> getDestinationLocation() async {
+
+    final locations = await _locationRepository.listLocations(null,false);
+
     final String searchTerm = 'Patio Ciane Shopping Sorocaba';
     final Uri url = Uri.parse(
         'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=$searchTerm&inputtype=textquery&fields=formatted_address,name,geometry&key=$_apiKey');

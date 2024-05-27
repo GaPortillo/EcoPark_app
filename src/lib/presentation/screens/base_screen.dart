@@ -9,12 +9,13 @@ import '../screens/search_screen.dart';
 import '../screens/settings_screen.dart';
 import '../widgets/footer.dart';
 import '../widgets/header.dart';
+import 'book_parking_spaces_screen.dart';
 
 class BaseScreen extends StatelessWidget {
   const BaseScreen({super.key});
 
   static final List<Widget> _screens = [
-    const HomeScreen(),
+    BookParkingSpacesScreen(),
     const FindParkingSpaceScreen(),
     const SettingsScreen(),
   ];

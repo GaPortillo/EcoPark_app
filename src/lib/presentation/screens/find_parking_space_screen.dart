@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:location/location.dart';
+import 'package:provider/provider.dart';
 import '../../app/app_theme.dart';
 import '../../data/services/location_service.dart';
 import '../widgets/custom_button.dart';
@@ -21,7 +20,6 @@ class _FindParkingSpaceScreenState extends State<FindParkingSpaceScreen> {
   LatLng? _destination;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
-  final LocationService _locationService = LocationService();
   List<List<LatLng>> _routes = [];
   int _selectedRouteIndex = 0;
 
@@ -33,8 +31,10 @@ class _FindParkingSpaceScreenState extends State<FindParkingSpaceScreen> {
 
   Future<void> _initialize() async {
     try {
-      final currentLocation = await _locationService.getCurrentLocation();
-      final destination = await _locationService.getDestinationLocation();
+      final locationService = Provider.of<LocationService>(context, listen: false);
+
+      final currentLocation = await locationService.getCurrentLocation();
+      final destination = await locationService.getDestinationLocation();
       setState(() {
         _initialCameraPosition = currentLocation;
         _destination = destination;
@@ -67,7 +67,8 @@ class _FindParkingSpaceScreenState extends State<FindParkingSpaceScreen> {
     }
 
     try {
-      final directions = await _locationService.getDirections(_initialCameraPosition!, _destination!);
+      final locationService = Provider.of<LocationService>(context, listen: false);
+      final directions = await locationService.getDirections(_initialCameraPosition!, _destination!);
       setState(() {
         _routes = directions;
         if (_routes.isNotEmpty) {
@@ -121,9 +122,8 @@ class _FindParkingSpaceScreenState extends State<FindParkingSpaceScreen> {
           children: [
             const Text(
               'Para melhor localização trace sua rota',
-              style: TextStyle(fontSize: 22,fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
-
             ),
             const SizedBox(height: 16),
             SizedBox(

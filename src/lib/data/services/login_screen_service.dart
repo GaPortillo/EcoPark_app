@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class LoginScreenService {
-  final String _baseUrl = 'https://apim-dev-ecopark-api.azure-api.net/Login';
+  final String _baseUrl = 'https://wa-dev-ecopark-api.azurewebsites.net/Login';
   final _storage = const FlutterSecureStorage();
 
   Future<UserModel> login(String email, String password) async {
