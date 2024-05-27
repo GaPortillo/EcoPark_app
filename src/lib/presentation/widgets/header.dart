@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'headerUserDetails.dart';
+
+import 'header_user_details.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -8,20 +9,20 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      height: 100, // Altura do cabeçalho
-      color: const Color(0xFF8DCBC8), // Cor de fundo do cabeçalho (você pode ajustar conforme necessário)
+      height: 100,
+      color: const Color(0xFF8DCBC8),
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start, // Alinhamento à esquerda
 
         children: [
           SizedBox(height: 20),
           HeaderUserDetails(
             userName: 'Gabriel Santos',
-            userImagePath: 'Assets/Images/home.png',
-            alignment: MainAxisAlignment.center,
+            userImagePath: 'assets/images/home.png',
+            alignment: MainAxisAlignment.start, // Alinhamento à esquerda
           ),
-      ], // Children
+        ],
       ),
     );
   }

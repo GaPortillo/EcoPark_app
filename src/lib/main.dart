@@ -1,46 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:ecopark/Widgets/header.dart';
-import 'package:ecopark/Widgets/footer.dart';
-import 'package:ecopark/Widgets/Pages/bookParkingSpace.dart';
-import 'package:ecopark/Widgets/Pages/checkpoint.dart';
+import 'package:provider/provider.dart';
+import 'app/app_theme.dart';
+import 'data/repositories/auth_repository.dart';
+import 'data/services/auth_service.dart';
+import 'presentation/providers/current_screen_provider.dart';
+import 'app/app_routes.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final authRepository = AuthRepositoryImpl();
+  final authService = AuthService(authRepository);
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      initialRoute: '/', // Rota inicial, se precisar
-      routes: {
-        '/': (context) => const Checkpoint(),
-      },
-    );
+  // Verifica a existência do token
+  final hasToken = await authService.getToken() != null;
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => CurrentScreenProvider(hasToken ? 0 : -1), // Índice inicial baseado no token
+        ),
+        Provider.value(value: authRepository),
+        Provider.value(value: authService),
+      ],
+      child: const App(),
+    ),
+  );
+
+  if (hasToken) {
+    authService.renewTokenPeriodically();
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: Header(),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/bookParkingSpace'); // Navega para a página BookParkingSpacePage
-          },
-          child: const Text('Reservar Vaga de Estacionamento'),
-        ),
-      ),
-      bottomNavigationBar: const Footer(),
+    final currentScreenIndex = Provider.of<CurrentScreenProvider>(context).currentScreenIndex;
+
+    return MaterialApp(
+      theme: AppTheme.lightTheme,
+      initialRoute: currentScreenIndex == -1 ? AppRoutes.login : AppRoutes.base, // Rota inicial baseada no índice
+      routes: AppRoutes.routes,
     );
   }
 }
