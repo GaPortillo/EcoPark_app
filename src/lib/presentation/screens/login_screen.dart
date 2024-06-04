@@ -180,7 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.register);  // Redirect to the RegisterScreen
+                    },
                     child: Text(
                       'Não Possui uma conta? Cadastre-se',
                       style: TextStyle(color: AppTheme.primaryColor),

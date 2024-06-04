@@ -39,6 +39,15 @@ dependencies:
   google_maps_flutter: ^2.6.1
   location: ^6.0.2
   url_launcher: ^6.0.9
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
+  dio: ^5.4.3
+  fluttertoast: ^8.0.8
+  mime: ^1.0.5
+  flutter_form_builder: ^9.3.0
+  form_builder_validators: ^10.0.1
+  validators: ^3.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -71,3 +80,4 @@ flutter:
     - assets/images/CarbonSaverToken.png
     - assets/images/logo_car.png
     - assets/images/logo_eco_park_background.png
+    - assets/images/user_default_image.png

@@ -9,7 +9,7 @@ class SignalRService {
 
   Future<void> startConnection(String locationId) async {
     _hubConnection = HubConnectionBuilder()
-        .withUrl('https://wa-dev-ecopark-api.azurewebsites.net/parkingSpaceHub?locationId=$locationId',
+        .withUrl('https://wa-dev-ecopark-api.azurewebsites.net/parkingSpaceHub',
         HttpConnectionOptions(
             logging: (level, message) => print(message),
             transport: HttpTransportType.webSockets))
@@ -19,7 +19,7 @@ class SignalRService {
     print('Conectado ao hub SignalR de status das vagas de estacionamento.');
 
     _hubConnection.on('ReceiveParkingSpaces', (data) {
-      _receivedDataController.add(data ?? []);
+      _receivedDataController.add(data?[0] ?? []);
     });
 
     await getParkingSpaces(locationId);
@@ -33,23 +33,15 @@ class SignalRService {
     });
   }
 
-  Future<List<dynamic>> getParkingSpaces(String locationId) async {
+  Future<void> getParkingSpaces(String locationId) async {
     if (_hubConnection.state == HubConnectionState.connected) {
       try {
-        final result = await _hubConnection.invoke('GetParkingSpaces', args: [locationId]);
-        if (result is List<dynamic>) {
-          return result;
-        } else {
-          print('Aviso: O resultado da invocação não é uma lista: $result');
-          return [];
-        }
+        await _hubConnection.invoke('GetParkingSpaces', args: [locationId]);
       } catch (err) {
         print('Erro ao chamar o método GetParkingSpaces: $err');
-        return [];
       }
     } else {
       print('Conexão não está ativa.');
-      return [];
     }
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ecopark/data/models/location_model.dart';
+import '../../data/models/location_model.dart';
 import 'package:ecopark/data/repositories/location_repository.dart';
-import 'package:ecopark/data/services/signalr_service.dart';
 import '../widgets/parkingSpaces.dart';
 import '../widgets/parking_location_dropdown.dart';
+import '../../data/models/parking_space_model.dart'; // Import necessário
+import '../widgets/reservation.dart'; // Importe o novo widget
 
 class BookParkingSpacesScreen extends StatefulWidget {
   @override
@@ -16,7 +16,7 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
   List<Location> _locations = [];
   bool _isLoading = true;
   Location? _selectedLocation;
-  SignalRService? _signalRService;
+  List<ParkingSpace> _parkingSpaces = [];
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
 
   Future<void> _fetchLocations() async {
     try {
-      final locations = await _locationRepository.listLocations(null, true);
+      final locations = await _locationRepository.listLocations(null, false); // Alterado para false
       setState(() {
         _locations = locations;
         _isLoading = false;
@@ -41,23 +41,27 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
   void _onLocationChanged(Location? location) {
     setState(() {
       _selectedLocation = location;
+      _parkingSpaces = [];
     });
 
     if (_selectedLocation != null) {
-      _startSignalRConnection(_selectedLocation!.id);
-
+      _fetchParkingSpaces(_selectedLocation!.id);
     }
   }
 
-  Future<void> _startSignalRConnection(String locationId) async {
-    _signalRService = Provider.of<SignalRService>(context, listen: false);
-    await _signalRService?.startConnection(locationId);
-  }
-
-  @override
-  void dispose() {
-    _signalRService?.dispose();
-    super.dispose();
+  Future<void> _fetchParkingSpaces(String locationId) async {
+    try {
+      final locations = await _locationRepository.listLocations([locationId], true); // Enviando locationId e definindo includeParkingSpaces como true
+      if (locations.isNotEmpty) {
+        setState(() {
+          _parkingSpaces = locations.first.parkingSpaces ?? [];
+        });
+      }
+    } catch (error) {
+      setState(() {
+        _parkingSpaces = [];
+      });
+    }
   }
 
   @override
@@ -82,7 +86,9 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
               ),
             SizedBox(height: 20),
             if (_selectedLocation != null)
-              ParkingSpaces(), // Adicionando o widget ParkingSpaces aqui
+              ParkingSpaces(parkingSpaces: _parkingSpaces),
+            if (_selectedLocation != null)
+              Reservation(), // Adiciona o widget Reservation aqui
           ],
         ),
       ),
