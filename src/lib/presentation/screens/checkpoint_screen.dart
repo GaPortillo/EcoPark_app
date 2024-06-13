@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:ecopark/Widgets/header.dart';
-import 'package:ecopark/Widgets/footer.dart';
 
-class Checkpoint extends StatelessWidget {
-  const Checkpoint({Key? key}) : super(key: key);
+class CheckpointScreen extends StatelessWidget {
+  const CheckpointScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: Header(),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                height: 50, // Defina uma altura fixa para o Container
+                height: 50,
                 child: Row(
                   children: [
                     Image.asset(
-                      'Assets/Images/CarbonSaverToken.png',
+                      'assets/images/CarbonSaverToken.png',
                       width: 50,
                       height: 50,
                     ),
@@ -40,7 +34,7 @@ class Checkpoint extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '140',
+                          '80',
                           style: TextStyle(
                             fontFamily: 'Arial',
                             fontSize: 12,
@@ -73,7 +67,7 @@ class Checkpoint extends StatelessWidget {
                       child: Row(
                         children: [
                           Image.asset(
-                            'Assets/Images/home.png',
+                            'assets/images/home.png',
                             width: 40,
                             height: 40,
                           ),
@@ -85,7 +79,7 @@ class Checkpoint extends StatelessWidget {
                               Row(
                                 children: [
                                   Image.asset(
-                                    'Assets/Images/CarbonSaverToken.png',
+                                    'assets/images/CarbonSaverToken.png',
                                     width: 12,
                                     height: 12,
                                   ),
@@ -110,7 +104,7 @@ class Checkpoint extends StatelessWidget {
                       child: Row(
                         children: [
                           Image.asset(
-                            'Assets/Images/home.png',
+                            'assets/images/home.png',
                             width: 40,
                             height: 40,
                           ),
@@ -122,7 +116,7 @@ class Checkpoint extends StatelessWidget {
                               Row(
                                 children: [
                                   Image.asset(
-                                    'Assets/Images/CarbonSaverToken.png',
+                                    'assets/images/CarbonSaverToken.png',
                                     width: 12,
                                     height: 12,
                                   ),
@@ -217,7 +211,6 @@ class Checkpoint extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const Footer(),
     );
   }
 }

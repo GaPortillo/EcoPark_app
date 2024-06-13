@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../data/services/auth_service.dart';
 import '../providers/current_screen_provider.dart';
 import '../../app/app_theme.dart';
-import '../../app/app_routes.dart';  // Import the routes
+import '../../app/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -74,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo and Title
                   Column(
                     children: [
                       const Row(
@@ -108,7 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                     ],
                   ),
-                  // Email Input
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -123,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     value!.contains('@') ? null : 'Por favor, insira um e-mail válido',
                   ),
                   const SizedBox(height: 20),
-                  // Password Input
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
@@ -142,7 +139,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  // Error Message
                   if (_errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 16.0),
@@ -152,7 +148,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   const SizedBox(height: 30),
-                  // Login Button
                   ElevatedButton(
                     onPressed: _isLoading ? null : () => _login(context),
                     style: ElevatedButton.styleFrom(
@@ -171,19 +166,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const Text('Login'),
                   ),
                   const SizedBox(height: 20),
-                  // Forgot Password and Sign Up
                   TextButton(
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       'Esqueceu sua Senha?',
                       style: TextStyle(color: AppTheme.primaryColor),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.register);  // Redirect to the RegisterScreen
+                      Navigator.pushNamed(context, AppRoutes.register);
                     },
-                    child: Text(
+                    child: const Text(
                       'Não Possui uma conta? Cadastre-se',
                       style: TextStyle(color: AppTheme.primaryColor),
                     ),

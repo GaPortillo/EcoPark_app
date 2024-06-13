@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../data/models/parking_space_model.dart'; // Import necessário
+import '../../data/models/parking_space_model.dart';
 
 class ParkingSpaces extends StatefulWidget {
-  final List<ParkingSpace> parkingSpaces; // Corrigido o tipo ParkingSpace
+  final List<ParkingSpace> parkingSpaces;
+  final ValueChanged<ParkingSpace?> onParkingSpaceSelected;
 
-  const ParkingSpaces({super.key, required this.parkingSpaces});
+  const ParkingSpaces({Key? key, required this.parkingSpaces, required this.onParkingSpaceSelected}) : super(key: key);
 
   @override
   _ParkingSpacesState createState() => _ParkingSpacesState();
@@ -46,32 +47,6 @@ class _ParkingSpacesState extends State<ParkingSpaces> {
               final parkingSpace = widget.parkingSpaces[index];
               return _buildParkingSpace(parkingSpace);
             },
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _selectedParkingSpace == null ? null : () {
-              // Adicione a lógica de confirmação da vaga aqui
-              print('Vaga selecionada: ${_selectedParkingSpace?.id}');
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: const Color(0xFF8DCBC8),
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                side: const BorderSide(color: Color(0xFF8DCBC8)),
-              ),
-            ),
-            child: const Text(
-              'Confirmar Vaga',
-              style: TextStyle(
-                fontFamily: 'Arial',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ),
         ),
       ],
@@ -116,6 +91,7 @@ class _ParkingSpacesState extends State<ParkingSpaces> {
         setState(() {
           _selectedParkingSpace = parkingSpace;
         });
+        widget.onParkingSpaceSelected(_selectedParkingSpace);
       },
       child: Container(
         height: 25,

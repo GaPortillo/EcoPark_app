@@ -1,22 +1,16 @@
-// lib/data/repositories/auth_repository.dart
+// lib/data/repositories/auth_repository_impl.dart
 
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
+import '../../domain/interfaces/iauth_repository.dart';
 
 const String _baseUrl = 'https://wa-dev-ecopark-api.azurewebsites.net';
 
-abstract class AuthRepository {
-  Future<UserModel> login(String email, String password);
-  Future<UserModel> loginWithToken(String token);
-
-}
-
-class AuthRepositoryImpl implements AuthRepository {
+class AuthRepositoryImpl implements IAuthRepository {
   final _storage = const FlutterSecureStorage();
-
 
   @override
   Future<UserModel> login(String email, String password) async {
@@ -45,21 +39,24 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['token'];
+      return UserModel.fromJson(data);
     } else {
       throw Exception('Erro ao renovar o token');
     }
   }
 
+  @override
   Future<void> logout() async {
     await _storage.deleteAll();
   }
 
+  @override
   Future<void> storeCredentials(String email, String password) async {
     await _storage.write(key: 'email', value: email);
     await _storage.write(key: 'password', value: password);
   }
 
+  @override
   void scheduleTokenRefresh(String token) {
     Timer(const Duration(minutes: 25), () async {
       try {

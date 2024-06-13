@@ -1,10 +1,11 @@
+import 'package:ecopark/domain/interfaces/ilocation_repository.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/location_model.dart';
 import 'package:ecopark/data/repositories/location_repository.dart';
 import '../widgets/parkingSpaces.dart';
 import '../widgets/parking_location_dropdown.dart';
-import '../../data/models/parking_space_model.dart'; // Import necessário
-import '../widgets/reservation.dart'; // Importe o novo widget
+import '../../data/models/parking_space_model.dart';
+import '../widgets/reservation.dart';
 
 class BookParkingSpacesScreen extends StatefulWidget {
   @override
@@ -12,11 +13,12 @@ class BookParkingSpacesScreen extends StatefulWidget {
 }
 
 class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
-  final LocationRepository _locationRepository = LocationRepositoryImpl();
+  final ILocationRepository _locationRepository = LocationRepositoryImpl();
   List<Location> _locations = [];
   bool _isLoading = true;
   Location? _selectedLocation;
   List<ParkingSpace> _parkingSpaces = [];
+  ParkingSpace? _selectedParkingSpace;
 
   @override
   void initState() {
@@ -42,11 +44,18 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
     setState(() {
       _selectedLocation = location;
       _parkingSpaces = [];
+      _selectedParkingSpace = null;
     });
 
     if (_selectedLocation != null) {
       _fetchParkingSpaces(_selectedLocation!.id);
     }
+  }
+
+  void _onParkingSpaceSelected(ParkingSpace? parkingSpace) {
+    setState(() {
+      _selectedParkingSpace = parkingSpace;
+    });
   }
 
   Future<void> _fetchParkingSpaces(String locationId) async {
@@ -86,9 +95,12 @@ class _BookParkingSpacesScreenState extends State<BookParkingSpacesScreen> {
               ),
             SizedBox(height: 20),
             if (_selectedLocation != null)
-              ParkingSpaces(parkingSpaces: _parkingSpaces),
-            if (_selectedLocation != null)
-              Reservation(), // Adiciona o widget Reservation aqui
+              ParkingSpaces(
+                parkingSpaces: _parkingSpaces,
+                onParkingSpaceSelected: _onParkingSpaceSelected,
+              ),
+            if (_selectedParkingSpace != null)
+              Reservation(parkingSpaceId: _selectedParkingSpace!.id), // Passar parkingSpaceId para Reservation
           ],
         ),
       ),

@@ -1,20 +1,13 @@
 import 'dart:convert';
-import 'dart:ffi';
+import 'package:ecopark/domain/interfaces/ilocation_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../../data/models/location_model.dart';
+import 'package:ecopark/data/models/location_model.dart';
 
-abstract class LocationRepository {
-  Future<List<Location>> getLocation(String id);
-  Future<List<Location>> listLocations(List<String>? locationIds, bool includeParkingSpaces);
-
-}
-
-class LocationRepositoryImpl implements LocationRepository {
+class LocationRepositoryImpl implements ILocationRepository {
   static const _storage = FlutterSecureStorage();
   final String _apiUrl = 'https://wa-dev-ecopark-api.azurewebsites.net/Location';
   final String _tokenKey = 'token';
-
 
   @override
   Future<List<Location>> getLocation(String id) async {
@@ -34,7 +27,7 @@ class LocationRepositoryImpl implements LocationRepository {
     } else {
       throw Exception('Failed to load locations');
     }
-}
+  }
 
   @override
   Future<List<Location>> listLocations(List<String>? locationIds, bool includeParkingSpaces) async {

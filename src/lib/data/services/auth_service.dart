@@ -1,8 +1,8 @@
 // lib/data/services/auth_service.dart
 
-import 'package:ecopark/data/models/user_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../repositories/auth_repository.dart';
+import '../../domain/interfaces/iauth_repository.dart';
+import '../models/user_model.dart';
 
 class AuthService {
   static const _storage = FlutterSecureStorage();
@@ -10,12 +10,15 @@ class AuthService {
   static const _passwordKey = 'password';
   static const _tokenKey = 'token';
 
-  final AuthRepository _authRepository;
+  final IAuthRepository _authRepository;
 
   AuthService(this._authRepository);
 
   Future<UserModel> login(String email, String password) async {
-    return await _authRepository.login(email, password);
+    final user = await _authRepository.login(email, password);
+    await saveCredentials(email, password);
+    await saveToken(user.token);
+    return user;
   }
 
   Future<void> saveCredentials(String email, String password) async {

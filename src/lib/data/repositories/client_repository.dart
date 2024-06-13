@@ -1,14 +1,19 @@
+// lib/data/repositories/client_repository.dart
+
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-
+import '../../domain/interfaces/iclient_repository.dart';
 import '../models/client_model.dart';
 
-class ClientRepository {
-  final String _baseUrl =
-      'https://wa-dev-ecopark-api.azurewebsites.net/Client'; // URL base da API
+class ClientRepository implements IClientRepository {
+  static const _storage = FlutterSecureStorage();
+  final String _baseUrl = 'https://wa-dev-ecopark-api.azurewebsites.net/Client';
+  final String _tokenKey = 'token';
 
+  @override
   Future<List<Client>> getClients() async {
     final url = Uri.parse(_baseUrl + '/list');
 
@@ -18,23 +23,21 @@ class ClientRepository {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({'clientIds': [], 'includeCars' : false}),
+        body: jsonEncode({'clientIds': [], 'includeCars': false}),
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data
-            .map((clientJson) => Client.fromJson(clientJson))
-            .toList();
+        return data.map((clientJson) => Client.fromJson(clientJson)).toList();
       } else {
         final errorData = jsonDecode(response.body);
-        throw Exception(
-            'Erro ao obter os clientes da API: ${errorData['error'] ?? 'Erro desconhecido'}');
+        throw Exception('Erro ao obter os clientes da API: ${errorData['error'] ?? 'Erro desconhecido'}');
       }
     } catch (e) {
       throw Exception('Erro na comunicação com a API: $e');
     }
   }
 
+  @override
   Future<void> insertClient(
       String firstName,
       String lastName,
@@ -44,7 +47,6 @@ class ClientRepository {
       String? mimeType,
       String? imageName,
       ) async {
-
     final url = Uri.parse(_baseUrl).replace(queryParameters: {
       'email': email,
       'password': password,
@@ -55,12 +57,10 @@ class ClientRepository {
     var request = http.MultipartRequest('POST', url);
 
     if (imageData != null) {
-      String? filename = imageName;
-
       var multipartFile = http.MultipartFile.fromBytes(
-        'image', // Nome do campo para a imagem
+        'image',
         imageData,
-        filename: filename, // Ou o nome original do arquivo
+        filename: imageName ?? 'image.jpg',
         contentType: MediaType.parse(mimeType ?? 'image/jpeg'),
       );
       request.files.add(multipartFile);
@@ -73,11 +73,32 @@ class ClientRepository {
       } else {
         final responseString = await response.stream.bytesToString();
         final errorData = jsonDecode(responseString);
-        throw Exception(
-            'Erro ao cadastrar cliente: ${errorData['error'] ?? 'Erro desconhecido'}');
+        throw Exception('Erro ao cadastrar cliente: ${errorData['error'] ?? 'Erro desconhecido'}');
       }
     } catch (e) {
       throw Exception('Erro na comunicação com a API: $e');
+    }
+  }
+
+  @override
+  Future<Client> getClient() async {
+    final String? token = await _storage.read(key: _tokenKey);
+    final Uri url = Uri.parse(_baseUrl).replace(queryParameters: {
+      'includeCars': 'true',
+    });
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return Client.fromJson(data);
+    } else {
+      throw Exception('Failed to load client data');
     }
   }
 }

@@ -17,7 +17,7 @@ class Footer extends StatelessWidget {
         children: [
           FooterButton(icon: Icons.smartphone, screenIndex: 0),
           FooterButton(icon: Icons.location_on, screenIndex: 1),
-          FooterButton(icon: Icons.settings, screenIndex: 2),
+          FooterButton(icon: Icons.card_giftcard, screenIndex: 2),
         ],
       ),
     );

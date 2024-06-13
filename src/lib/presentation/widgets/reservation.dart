@@ -1,7 +1,11 @@
+import 'package:ecopark/data/services/reservation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Reservation extends StatefulWidget {
-  const Reservation({Key? key}) : super(key: key);
+  final String parkingSpaceId;
+
+  const Reservation({Key? key, required this.parkingSpaceId}) : super(key: key);
 
   @override
   _ReservationState createState() => _ReservationState();
@@ -10,6 +14,7 @@ class Reservation extends StatefulWidget {
 class _ReservationState extends State<Reservation> {
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -25,10 +30,11 @@ class _ReservationState extends State<Reservation> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null && pickedDate != _selectedDate)
+    if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
       });
+    }
   }
 
   Future<void> _selectTime(BuildContext context) async {
@@ -36,10 +42,41 @@ class _ReservationState extends State<Reservation> {
       context: context,
       initialTime: _selectedTime,
     );
-    if (pickedTime != null && pickedTime != _selectedTime)
+    if (pickedTime != null && pickedTime != _selectedTime) {
       setState(() {
         _selectedTime = pickedTime;
       });
+    }
+  }
+
+  Future<void> _registerParkingSpace() async {
+    final DateTime reservationDate = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedTime.hour,
+      _selectedTime.minute,
+    );
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final reservationService = Provider.of<ReservationService>(context, listen: false);
+      await reservationService.reserveParkingSpace(widget.parkingSpaceId, reservationDate);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Reserva realizada com sucesso!')),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao realizar a reserva')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -93,6 +130,20 @@ class _ReservationState extends State<Reservation> {
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16),
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+              onPressed: _registerParkingSpace,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Color(0xFF8DCBC8), backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              ),
+              child: Text('Registrar Vaga'),
             ),
           ],
         ),
